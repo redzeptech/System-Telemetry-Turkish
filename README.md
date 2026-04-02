@@ -1,5 +1,11 @@
 # System-Telemetry-Turkish 🖥️🟢
 
+
+https://github.com/user-attachments/assets/3d8f6fc1-ec30-4338-9cbe-41713d7cbe77
+
+
+
+
 Gamer / Matrix temalı gelişmiş donanım izleme ve teşhis sistemi. Türkçe arayüz ve mesajlarla telemetri toplayan bu proje; CPU, GPU, bellek, disk, fan ve anakart verilerini birleştirir; eşik analizi, uyarılar, 0–100 sağlık skoru ve PDF rapor üretir.
 
 ## Özellikler
