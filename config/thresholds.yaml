@@ -1,0 +1,64 @@
+# Bileşen bazlı eşikler (CPU, GPU, ...). Sıcaklık için code/recommendation alarm motorunda kullanılır.
+CPU:
+  temperature:
+    warning: 80
+    critical: 95
+    title: "CPU sıcaklığı kritik seviyeye ulaştı"
+    code: "CPU_TEMP_CRITICAL"
+    recommendation: "Soğutucu montajı ve termal macun kontrol edilmeli."
+    code_warning: "CPU_TEMP_WARNING"
+    recommendation_warning: "CPU sıcaklığı yükseldi; havalandırma ve yükü kontrol edin."
+    title_warning: "CPU sıcaklığı yükseldi"
+
+GPU:
+  temperature:
+    warning: 75
+    critical: 88
+    title: "GPU sıcaklığı kritik seviyede"
+    code: "GPU_TEMP_CRITICAL"
+    recommendation: "Kasa içi hava akışını kontrol edin."
+    code_warning: "GPU_TEMP_WARNING"
+    recommendation_warning: "GPU sıcaklığı yükseldi; fan eğrisini kontrol edin."
+    title_warning: "GPU sıcaklığı yükseldi"
+
+Motherboard:
+  temperature:
+    warning: 70
+    critical: 85
+    title: "Anakart sıcaklığı kritik"
+    code: "MB_TEMP_CRITICAL"
+    recommendation: "Kasa fanları ve kablo yönetimini kontrol edin."
+    code_warning: "MB_TEMP_WARNING"
+    recommendation_warning: "Anakart sıcaklığı yükseldi."
+
+# Yüzde tabanlı kullanım (load, bellek, disk)
+usage:
+  cpu_percent:
+    warning: 85
+    critical: 95
+  memory_percent:
+    warning: 85
+    critical: 95
+  disk_percent:
+    warning: 85
+    critical: 95
+
+fan:
+  min_rpm:
+    warning: 500
+    critical: 200
+
+# Katman C — korelasyon kuralları (CorrelationAnalyzer)
+correlation:
+  cpu_low_load_max: 20
+  cpu_temp_high: 85
+  fan_high_percent: 90
+  fan_high_rpm_min: 2500
+
+# Alarm JSON severity (low / medium / high / critical)
+alert_severity:
+  mapping:
+    normal: low
+    warning: medium
+    critical: critical
+  temperature_warning_to_high_ratio: 0.85

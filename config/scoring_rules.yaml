@@ -1,0 +1,22 @@
+# Sağlık puanı: bileşen ağırlıkları ve durum cezaları (HealthScoreCalculator)
+version: "1.0"
+weights:
+  cpu: 0.30
+  gpu: 0.25
+  memory: 0.15
+  disk: 0.15
+  fan: 0.10
+  motherboard: 0.05
+# Her status için 0..1 ceza çarpanı (ortalama cezaya girer)
+status_penalties:
+  normal: 0.0
+  ok: 0.0
+  warning: 0.5
+  critical: 1.0
+# thermal_analyzer: düşük yük + sıcaklık artışı → Cooling Issue
+cooling_issue:
+  max_load_percent: 35.0
+  min_temp_delta_c: 2.0
+  min_history_points: 2
+  # Geçmiş + anlık seride eğim: son - ilk >= min_temp_delta_c
+  require_fan_not_proportional: false

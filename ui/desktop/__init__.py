@@ -1,0 +1,1 @@
+"""Masaüstü arayüzü."""

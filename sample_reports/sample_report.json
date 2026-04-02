@@ -1,0 +1,44 @@
+{
+  "generated_at": "2026-04-02T12:00:00+00:00",
+  "collectors": {
+    "cpu": {
+      "usage_percent": 12.5,
+      "per_cpu": [10.0, 14.0],
+      "frequency_mhz": 3600.0,
+      "core_count": 8
+    },
+    "memory": {
+      "total_bytes": 17179869184,
+      "available_bytes": 8589934592,
+      "used_percent": 50.0,
+      "swap_total_bytes": 2147483648,
+      "swap_used_percent": 0.0
+    },
+    "disk": {
+      "partitions": [
+        {
+          "device": "C:\\",
+          "mountpoint": "C:\\",
+          "fstype": "NTFS",
+          "total_bytes": 500000000000,
+          "used_bytes": 250000000000,
+          "free_bytes": 250000000000,
+          "used_percent": 50.0
+        }
+      ]
+    }
+  },
+  "analysis": {
+    "performance": [],
+    "disk": []
+  },
+  "health": {
+    "score": 95.0,
+    "factors": {
+      "thermal_penalty": 0.0,
+      "disk_penalty": 0.0,
+      "performance_penalty": 0.0
+    },
+    "summary": "Sağlık puanı: 95.0/100"
+  }
+}

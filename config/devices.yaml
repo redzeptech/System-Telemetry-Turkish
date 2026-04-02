@@ -1,0 +1,8 @@
+# İzlenecek disk ve sensör takma adları (isteğe bağlı filtre)
+disks:
+  include_names: []
+  exclude_names: []
+
+sensors:
+  include: []
+  exclude: []

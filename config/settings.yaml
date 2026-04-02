@@ -1,0 +1,56 @@
+# Genel uygulama ayarları
+app:
+  name: System Telemetry Turkish
+  locale: tr_TR.UTF-8
+  # Ana döngü aralığı (Orchestrator); poll_interval_seconds ile aynı anlam (geriye uyumluluk)
+  polling_interval_seconds: 5
+  poll_interval_seconds: 5
+  log_level: INFO
+
+storage:
+  backend: sqlite
+  sqlite_path: data/telemetry.db
+  json_backup_path: data/snapshots.jsonl
+
+# LHM: ayrı uygulama; veri çoğunlukla JSON portu (web) veya WMI ile
+integrations:
+  libre_hardware_monitor:
+    enabled: true
+    # LHM uzaktan erişim açıksa tipik: http://localhost:PORT/data.json
+    json_url: http://localhost:8085/data.json
+  # smartctl: Smartmontools’tan harici .exe; PATH veya tam yol
+  smartctl:
+    enabled: true
+    binary: smartctl
+  wmi:
+    enabled: true
+
+# Sağlık puanı: Overall = sum(cpu_score * w_cpu) + gpu * w_gpu + ...
+# Ayrıntılı ağırlık ve durum cezaları: config/scoring_rules.yaml
+# Yalnızca o döngüde ölçümü olan bileşenler için ağırlıklar yeniden normalize edilir.
+health_scoring:
+  weights:
+    cpu: 0.30
+    gpu: 0.25
+    memory: 0.15
+    disk: 0.15
+    fan: 0.10
+    motherboard: 0.05
+  legacy_weights:
+    thermal: 0.35
+    disk: 0.25
+    performance: 0.40
+
+reporting:
+  default_format: json
+  output_dir: reports
+
+# Aynı sensör için ardışık alarm kaydı (saniye; 300 = 5 dk)
+alerts:
+  cooldown_seconds: 300
+
+# Ham telemetri şişmesi: belirli aralıkta eski satırları saatlik özet + sil
+telemetry_retention:
+  enabled: true
+  rollup_after_hours: 1.0
+  run_every_cycles: 30

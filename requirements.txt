@@ -1,0 +1,27 @@
+# System-Telemetry-Turkish — çalışma zamanı + test
+# Kurulum: pip install -r requirements.txt
+
+# Çekirdek
+psutil>=5.9.0
+PyYAML>=6.0
+pandas>=2.0.0
+
+# Web paneli
+Flask>=3.0.0
+flask-cors>=4.0.0
+
+# Raporlama ve grafik
+reportlab>=4.0.0
+matplotlib>=3.8.0
+fpdf2>=2.7.0
+
+# GPU (Linux/Windows; NVML)
+GPUtil>=1.4.0
+nvidia-ml-py>=12.0.0
+
+# Windows
+WMI>=1.5.1; platform_system == "Windows"
+pywin32>=306; platform_system == "Windows"
+
+# Testler (CI / geliştirme)
+pytest>=7.4.0

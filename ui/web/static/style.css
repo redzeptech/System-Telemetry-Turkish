@@ -1,0 +1,507 @@
+/* Matrix / Cyberpunk — #000 zemin, #00FF00 metin, #00FFFF çerçeve, neon glow */
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap");
+
+:root {
+  --matrix-black: #000000;
+  --matrix-carbon: #0d0d0d;
+  --matrix-green: #00ff00;
+  --matrix-green-dim: rgba(0, 255, 0, 0.65);
+  --matrix-cyan: #00ffff;
+  --matrix-cyan-glow: rgba(0, 255, 255, 0.55);
+  --matrix-red: #ff0033;
+  --font-matrix: "Courier New", Courier, monospace;
+  --font-display: "Orbitron", var(--font-matrix);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--matrix-black);
+  color: var(--matrix-green);
+  font-family: var(--font-matrix);
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+/* İnce grid — radar hissi */
+.matrix-scan {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(0, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: 0.85;
+}
+
+/* Neon mavi parlayan çerçeve — paneller */
+.matrix-frame {
+  position: relative;
+  z-index: 1;
+  border: 1px solid var(--matrix-cyan);
+  border-radius: 2px;
+  background: var(--matrix-carbon);
+  box-shadow:
+    0 0 12px rgba(0, 255, 255, 0.25),
+    0 0 28px rgba(0, 255, 255, 0.08),
+    inset 0 0 24px rgba(0, 255, 0, 0.03);
+}
+
+.matrix-frame::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 2px;
+  pointer-events: none;
+  box-shadow: 0 0 16px var(--matrix-cyan-glow);
+  opacity: 0.35;
+}
+
+/* Üst başlık + daktilo */
+.matrix-top {
+  position: relative;
+  z-index: 2;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(0, 255, 255, 0.35);
+  background: linear-gradient(180deg, #050505 0%, var(--matrix-black) 100%);
+}
+
+.typewriter-line {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(0.85rem, 2.5vw, 1.15rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--matrix-green);
+  text-shadow:
+    0 0 8px rgba(0, 255, 0, 0.8),
+    0 0 20px rgba(0, 255, 0, 0.35);
+  min-height: 1.6em;
+}
+
+.typewriter-line .cursor {
+  display: inline-block;
+  width: 0.55em;
+  margin-left: 2px;
+  animation: cursor-blink 0.85s step-end infinite;
+  color: var(--matrix-cyan);
+  text-shadow: 0 0 10px var(--matrix-cyan);
+}
+
+@keyframes cursor-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Çekirdek durumu — neon başlık */
+.core-banner-wrap {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 0.65rem 1rem 0.35rem;
+  background: radial-gradient(ellipse 70% 120% at 50% 0%, rgba(0, 40, 20, 0.45), transparent 65%);
+}
+
+.core-banner {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1rem, 3vw, 1.35rem);
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--matrix-green);
+  text-shadow:
+    0 0 10px rgba(0, 255, 0, 0.95),
+    0 0 28px rgba(0, 255, 0, 0.45),
+    0 0 42px rgba(0, 255, 0, 0.2);
+  animation: core-flicker 4s ease-in-out infinite;
+}
+
+@keyframes core-flicker {
+  0%,
+  92%,
+  100% {
+    opacity: 1;
+  }
+  94% {
+    opacity: 0.88;
+  }
+  96% {
+    opacity: 1;
+  }
+}
+
+/* Ana ızgara: sol grafik / sağ skor */
+.matrix-dashboard {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+@media (max-width: 900px) {
+  .matrix-dashboard {
+    grid-template-columns: 1fr;
+  }
+}
+
+.matrix-panel-title {
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--matrix-green);
+  margin: 0 0 0.5rem;
+  text-shadow: 0 0 6px rgba(0, 255, 0, 0.5);
+}
+
+.matrix-hint {
+  font-size: 0.75rem;
+  color: var(--matrix-green-dim);
+  margin: 0 0 0.75rem;
+}
+
+/* Grafik — neon glow + CRT tarama çizgisi */
+.chart-scanline-wrap {
+  position: relative;
+  height: min(320px, 42vh);
+  overflow: hidden;
+  filter: drop-shadow(0 6px 14px rgba(0, 255, 0, 0.35));
+}
+
+.chart-scanline-wrap canvas {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Yatay ince çizgiler (scanline grid) */
+.scanline-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    180deg,
+    transparent 0,
+    transparent 2px,
+    rgba(0, 255, 0, 0.045) 2px,
+    rgba(0, 255, 0, 0.045) 4px
+  );
+}
+
+/* Aşağı süzülen parlak bant */
+.chart-scanline-wrap::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 22%;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 255, 0, 0) 0%,
+    rgba(0, 255, 0, 0.14) 50%,
+    rgba(0, 255, 0, 0) 100%
+  );
+  animation: crt-scan 3.5s linear infinite;
+}
+
+@keyframes crt-scan {
+  0% {
+    top: -22%;
+  }
+  100% {
+    top: 100%;
+  }
+}
+
+/* Sağ üst — dijital skor */
+.score-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: 1rem;
+}
+
+.score-label {
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  letter-spacing: 0.4em;
+  color: var(--matrix-cyan);
+  text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+  margin-bottom: 0.5rem;
+}
+
+.score-display {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(3rem, 10vw, 5rem);
+  line-height: 1;
+  letter-spacing: 0.08em;
+  color: var(--matrix-green);
+  text-shadow:
+    0 0 12px rgba(0, 255, 0, 0.9),
+    0 0 32px rgba(0, 255, 0, 0.45);
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+/* Snapshot yok / skor henüz yok — kırmızı alarm yok */
+.score-display--pending {
+  font-size: clamp(1.15rem, 4vw, 1.75rem);
+  letter-spacing: 0.12em;
+  color: var(--matrix-cyan);
+  text-shadow:
+    0 0 10px rgba(0, 255, 255, 0.65),
+    0 0 24px rgba(0, 255, 255, 0.25);
+  animation: none;
+}
+
+/* Tam puan — yeşil parlama */
+.score-display--perfect {
+  color: var(--matrix-green);
+  text-shadow:
+    0 0 16px rgba(0, 255, 0, 1),
+    0 0 40px rgba(0, 255, 0, 0.6),
+    0 0 60px rgba(0, 255, 0, 0.25);
+  animation: score-pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes score-pulse {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.15);
+  }
+}
+
+/* Düşük skor — glitch + kırmızı */
+.score-display--glitch {
+  color: var(--matrix-red);
+  text-shadow:
+    0 0 8px rgba(255, 0, 51, 0.9),
+    2px 0 0 rgba(0, 255, 255, 0.3),
+    -2px 0 0 rgba(255, 0, 0, 0.4);
+  animation: glitch-skew 0.35s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-skew {
+  0% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(-1px, 1px);
+  }
+  40% {
+    transform: translate(1px, -1px);
+  }
+  60% {
+    transform: translate(-1px, 0);
+  }
+  80% {
+    transform: translate(1px, 1px);
+  }
+  100% {
+    transform: translate(0);
+  }
+}
+
+.score-sub {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--matrix-green-dim);
+}
+
+.score-clock {
+  font-family: var(--font-matrix);
+  font-size: 0.85rem;
+  letter-spacing: 0.15em;
+  color: var(--matrix-cyan);
+  margin-top: 0.5rem;
+  text-shadow: 0 0 6px rgba(0, 255, 255, 0.4);
+}
+
+/* Orta — donanım tablosu */
+.matrix-mid {
+  grid-column: 1 / -1;
+  padding: 0 1rem 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.hardware-title {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin: 0 0 0.75rem;
+  padding-left: 0.25rem;
+  color: var(--matrix-green);
+  text-shadow: 0 0 8px rgba(0, 255, 0, 0.45);
+}
+
+.hardware-table-wrap {
+  overflow-x: auto;
+}
+
+.hardware-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--matrix-cyan);
+  box-shadow:
+    0 0 14px rgba(0, 255, 255, 0.2),
+    inset 0 0 20px rgba(0, 255, 255, 0.04);
+}
+
+.hardware-table th,
+.hardware-table td {
+  border: 1px solid rgba(0, 255, 255, 0.35);
+  padding: 0.65rem 0.85rem;
+  text-align: left;
+  color: var(--matrix-green);
+}
+
+.hardware-table th {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  background: rgba(0, 40, 40, 0.45);
+  text-shadow: 0 0 6px rgba(0, 255, 0, 0.4);
+}
+
+.hardware-table td.value-cell {
+  word-break: break-word;
+  font-size: 0.88rem;
+}
+
+/* Alt — kayan ticker */
+.matrix-ticker {
+  position: relative;
+  z-index: 2;
+  margin-top: auto;
+  padding: 0.6rem 0;
+  border-top: 1px solid rgba(0, 255, 255, 0.25);
+  background: #000;
+  overflow: hidden;
+}
+
+.ticker-track {
+  display: flex;
+  white-space: nowrap;
+  animation: ticker-scroll 48s linear infinite;
+}
+
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
+.ticker-text {
+  font-family: var(--font-matrix);
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  color: var(--matrix-green-dim);
+  padding-right: 4rem;
+  text-shadow: 0 0 4px rgba(0, 255, 0, 0.35);
+}
+
+@keyframes ticker-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Aksiyonlar */
+.matrix-actions {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 0.5rem 1rem 1.25rem;
+}
+
+.btn-matrix {
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 0.85rem 1.5rem;
+  cursor: pointer;
+  color: var(--matrix-black);
+  background: var(--matrix-cyan);
+  border: 1px solid var(--matrix-cyan);
+  box-shadow:
+    0 0 18px rgba(0, 255, 255, 0.45),
+    inset 0 0 12px rgba(255, 255, 255, 0.15);
+}
+
+.btn-matrix:hover:not(:disabled) {
+  background: var(--matrix-green);
+  border-color: var(--matrix-green);
+  box-shadow: 0 0 22px rgba(0, 255, 0, 0.5);
+}
+
+.btn-matrix:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.pdf-download-line {
+  margin: 1.25rem 0 0;
+}
+
+.pdf-glow-link {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  color: var(--matrix-cyan);
+  text-shadow:
+    0 0 8px rgba(0, 255, 255, 0.85),
+    0 0 20px rgba(0, 255, 255, 0.35);
+  border-bottom: 1px solid rgba(0, 255, 255, 0.45);
+  padding-bottom: 0.2rem;
+  transition: color 0.15s ease, text-shadow 0.15s ease;
+}
+
+.pdf-glow-link:hover {
+  color: var(--matrix-green);
+  text-shadow:
+    0 0 12px rgba(0, 255, 0, 0.9),
+    0 0 24px rgba(0, 255, 0, 0.4);
+  border-bottom-color: var(--matrix-green);
+}
+
+.matrix-fine {
+  margin-top: 0.75rem;
+  font-size: 0.68rem;
+  color: var(--matrix-green-dim);
+}
+
+.matrix-fine code {
+  color: var(--matrix-cyan);
+  background: rgba(0, 255, 255, 0.06);
+  padding: 0.1rem 0.35rem;
+  border: 1px solid rgba(0, 255, 255, 0.2);
+}

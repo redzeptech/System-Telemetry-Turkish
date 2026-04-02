@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+ENV/
+.env
+.env.local
+
+# Paket / dağıtım
+*.egg
+*.egg-info/
+.eggs/
+dist/
+build/
+pip-wheel-metadata/
+
+# IDE ve editör
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Proje çıktıları ve yerel veri (commit edilmemeli)
+data/
+reports/
+*.db
+*.sqlite
+*.sqlite3
+*.log
+*.pdf
+
+# Test ve kalite
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.tox/
+coverage.xml
+
+# İşletim sistemi
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Cursor / yerel araçlar (isteğe bağlı: repoda tutmak istersen satırı sil)
+.cursor/

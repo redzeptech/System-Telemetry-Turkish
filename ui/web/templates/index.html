@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }} — MATRIX CORE</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="matrix-scan" aria-hidden="true"></div>
+
+  <div class="core-banner-wrap">
+    <p class="core-banner">Sistem Çekirdeği Aktif</p>
+  </div>
+
+  <header class="matrix-top">
+    <p class="typewriter-line" id="typewriter-host" aria-live="polite">
+      <span id="typewriter-text"></span><span class="cursor">█</span>
+    </p>
+  </header>
+
+  <div class="matrix-dashboard">
+    <section class="matrix-frame" aria-labelledby="chart-heading">
+      <h2 id="chart-heading" class="matrix-panel-title">Thermal stream</h2>
+      <p class="matrix-hint">CPU / GPU °C — SQLite canlı örnek (~5s)</p>
+      <div class="chart-scanline-wrap">
+        <div class="scanline-overlay" aria-hidden="true"></div>
+        <canvas id="temp-chart" role="img" aria-label="CPU ve GPU sıcaklık çizgileri"></canvas>
+      </div>
+    </section>
+
+    <section class="matrix-frame score-panel" aria-labelledby="score-heading">
+      <h2 id="score-heading" class="visually-hidden">Sağlık skoru</h2>
+      <span class="score-label">SCORE</span>
+      <div id="health-score" class="score-display" aria-live="polite">—</div>
+      <div class="score-sub" id="health-hint"></div>
+      <div class="score-clock" id="clock"></div>
+    </section>
+  </div>
+
+  <div class="matrix-mid">
+    <h2 class="hardware-title">Sistem Donanım Özellikleri</h2>
+    <div class="hardware-table-wrap matrix-frame">
+      <table class="hardware-table" id="hardware-table">
+        <thead>
+          <tr>
+            <th scope="col">Özellik</th>
+            <th scope="col">Değer</th>
+          </tr>
+        </thead>
+        <tbody id="hardware-body">
+          <tr><td colspan="2" class="value-cell">Yükleniyor…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="matrix-actions">
+    <button type="button" class="btn-matrix" id="pdf-btn">Günlük PDF Raporu İndir</button>
+    <p class="pdf-download-line">
+      <a href="/api/reports/daily-pdf" class="pdf-glow-link" id="pdf-glow-link">DOSYAYI İNDİR: [{{ report_pdf_filename }}]</a>
+    </p>
+    <p class="matrix-fine"><code>/api/telemetry</code> · <code>run_gunluk_ozet_pdf</code></p>
+  </div>
+
+  <footer class="matrix-ticker" aria-hidden="false">
+    <div class="ticker-track" id="ticker-track">
+      <span class="ticker-text" id="ticker-a"></span>
+      <span class="ticker-text" id="ticker-b" aria-hidden="true"></span>
+    </div>
+  </footer>
+
+  <style>
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script>
+    (function () {
+      const POLL_MS = 5000;
+      const TYPEWRITER_TEXT = 'SYSTEM TELEMETRY - MATRIX CORE v1.0';
+      const TICKER_BASE =
+        'Monitoring core 0... core 1... Fan speed stable... No anomalies detected... ' +
+        'İzleme: CPU yolu aktif... GPU sensörü OK... Bellek basıncı normal... ' +
+        'Telemetry buffer flushed... Matrix sync... ';
+
+      let chart = null;
+      let lastBeepAt = 0;
+      let prevCritical = false;
+
+      function escHtml(s) {
+        return String(s)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      /* Daktilo */
+      function runTypewriter() {
+        const el = document.getElementById('typewriter-text');
+        if (!el) return;
+        let i = 0;
+        el.textContent = '';
+        function tick() {
+          if (i <= TYPEWRITER_TEXT.length) {
+            el.textContent = TYPEWRITER_TEXT.slice(0, i);
+            i++;
+            setTimeout(tick, i < 6 ? 120 : 42 + Math.random() * 40);
+          }
+        }
+        tick();
+      }
+
+      /* Ticker — iki kopya sonsuz kaydırma */
+      function fillTicker() {
+        const a = document.getElementById('ticker-a');
+        const b = document.getElementById('ticker-b');
+        const t = TICKER_BASE + new Date().toISOString() + ' ... ';
+        if (a) a.textContent = t;
+        if (b) b.textContent = t;
+      }
+
+      function tickClock() {
+        const el = document.getElementById('clock');
+        if (!el) return;
+        el.textContent = new Date().toLocaleString('tr-TR', { hour12: false });
+      }
+
+      function playCriticalBeep() {
+        const now = Date.now();
+        if (now - lastBeepAt < 8000) return;
+        lastBeepAt = now;
+        try {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          if (!Ctx) return;
+          const ctx = new Ctx();
+          const o = ctx.createOscillator();
+          const g = ctx.createGain();
+          o.type = 'square';
+          o.frequency.value = 920;
+          o.connect(g);
+          g.connect(ctx.destination);
+          g.gain.setValueAtTime(0.06, ctx.currentTime);
+          g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.07);
+          o.start();
+          o.stop(ctx.currentTime + 0.08);
+          setTimeout(function () { ctx.close(); }, 200);
+        } catch (e) { /* kullanıcı etkileşimi gerekebilir */ }
+      }
+
+      function reasonsLookCritical(reasons) {
+        if (!Array.isArray(reasons)) return false;
+        const s = reasons.join(' ').toLowerCase();
+        return /kritik|critical|alarm|çök|throttle/i.test(s);
+      }
+
+      function updateScoreDisplay(score, reasons, pending) {
+        const el = document.getElementById('health-score');
+        const hint = document.getElementById('health-hint');
+        if (!el) return;
+        if (pending === true || score === null || score === undefined) {
+          el.textContent = 'Hesaplanıyor...';
+          el.className = 'score-display score-display--pending';
+          if (hint) hint.textContent = 'VERİ BEKLENİYOR';
+          prevCritical = false;
+          return;
+        }
+        const num = typeof score === 'number' ? score : parseFloat(score);
+        if (Number.isNaN(num)) {
+          el.textContent = 'Hesaplanıyor...';
+          el.className = 'score-display score-display--pending';
+          if (hint) hint.textContent = '';
+          prevCritical = false;
+          return;
+        }
+        el.textContent = num.toFixed(1);
+        el.className = 'score-display';
+        const perfect = num >= 99.5;
+        const glitch = num < 99.5;
+        if (perfect) el.classList.add('score-display--perfect');
+        if (glitch) el.classList.add('score-display--glitch');
+        if (hint) {
+          hint.textContent = perfect
+            ? 'NOMINAL'
+            : glitch
+              ? 'ALERT / DEGRADED'
+              : '';
+        }
+        const critical = num < 40 || reasonsLookCritical(reasons || []);
+        if (critical && !prevCritical) playCriticalBeep();
+        prevCritical = critical;
+      }
+
+      async function loadHealth() {
+        try {
+          const r = await fetch('/api/health');
+          const j = await r.json();
+          updateScoreDisplay(j.score, j.reasons, j.pending);
+        } catch (e) { /* sessiz */ }
+      }
+
+      async function loadHardware() {
+        const body = document.getElementById('hardware-body');
+        if (!body) return;
+        try {
+          const r = await fetch('/api/hardware');
+          const j = await r.json();
+          if (!r.ok || j.error) {
+            body.innerHTML = '<tr><td colspan="2" class="value-cell">Donanım okunamadı</td></tr>';
+            return;
+          }
+          const map = [
+            ['İşlemci (CPU)', j.cpu],
+            ['Grafik (GPU)', j.gpu],
+            ['Bellek (RAM)', j.ram],
+            ['İşletim sistemi', j.os],
+          ];
+          body.innerHTML = map
+            .map(function (row) {
+              return (
+                '<tr><th scope="row">' +
+                escHtml(row[0]) +
+                '</th><td class="value-cell">' +
+                escHtml(row[1] || '—') +
+                '</td></tr>'
+              );
+            })
+            .join('');
+        } catch (e) {
+          body.innerHTML = '<tr><td colspan="2" class="value-cell">Donanım okunamadı</td></tr>';
+        }
+      }
+
+      const gridColor = 'rgba(0, 255, 255, 0.14)';
+      const tickColor = 'rgba(0, 255, 0, 0.75)';
+
+      async function loadChart() {
+        const r = await fetch('/api/telemetry');
+        const j = await r.json();
+        if (!r.ok || j.error) {
+          console.error(j.error || r.status);
+          return;
+        }
+        const s = j.series || {};
+        const labels = s.labels || [];
+        const cpu = s.cpu_temperature || [];
+        const gpu = s.gpu_temperature || [];
+        const ctx = document.getElementById('temp-chart');
+        if (!ctx) return;
+
+        const data = {
+          labels: labels,
+          datasets: [
+            {
+              label: 'CPU °C',
+              data: cpu,
+              borderColor: '#00FF00',
+              backgroundColor: 'rgba(0, 255, 0, 0.1)',
+              tension: 0.2,
+              fill: true,
+              spanGaps: true,
+              pointRadius: 0,
+              borderWidth: 4,
+              borderJoinStyle: 'round',
+            },
+            {
+              label: 'GPU °C',
+              data: gpu,
+              borderColor: '#66FF66',
+              backgroundColor: 'rgba(102, 255, 102, 0.08)',
+              tension: 0.2,
+              fill: true,
+              spanGaps: true,
+              pointRadius: 0,
+              borderWidth: 3,
+              borderJoinStyle: 'round',
+            },
+          ],
+        };
+
+        const scaleCommon = {
+          ticks: { color: tickColor, font: { family: 'Courier New', size: 10 } },
+          grid: { color: gridColor, lineWidth: 1 },
+        };
+
+        if (chart) {
+          chart.data.labels = labels;
+          chart.data.datasets[0].data = cpu;
+          chart.data.datasets[1].data = gpu;
+          chart.update('none');
+        } else {
+          chart = new Chart(ctx, {
+            type: 'line',
+            data: data,
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              interaction: { mode: 'index', intersect: false },
+              plugins: {
+                legend: {
+                  labels: {
+                    color: '#00FF00',
+                    font: { family: 'Orbitron, Courier New', size: 11 },
+                    boxWidth: 12,
+                  },
+                },
+                tooltip: {
+                  backgroundColor: 'rgba(0, 0, 0, 0.92)',
+                  borderColor: '#00FFFF',
+                  borderWidth: 1,
+                  titleColor: '#00FF00',
+                  bodyColor: '#00FF00',
+                  titleFont: { family: 'Courier New' },
+                  bodyFont: { family: 'Courier New' },
+                },
+              },
+              scales: {
+                x: {
+                  ...scaleCommon,
+                  title: {
+                    display: true,
+                    text: 'TIME',
+                    color: '#00FFFF',
+                    font: { family: 'Orbitron', size: 10 },
+                  },
+                },
+                y: {
+                  ...scaleCommon,
+                  title: {
+                    display: true,
+                    text: '°C',
+                    color: '#00FF00',
+                    font: { family: 'Orbitron', size: 11 },
+                  },
+                  suggestedMin: 25,
+                  suggestedMax: 100,
+                },
+              },
+            },
+          });
+        }
+      }
+
+      async function downloadPdf() {
+        const b = document.getElementById('pdf-btn');
+        const link = document.getElementById('pdf-glow-link');
+        if (b) b.disabled = true;
+        if (link) link.style.pointerEvents = 'none';
+        try {
+          const r = await fetch('/api/reports/daily-pdf');
+          if (!r.ok) {
+            let msg = 'PDF oluşturulamadı';
+            try {
+              const j = await r.json();
+              if (j.error) msg = j.error;
+            } catch (e) {}
+            alert(msg);
+            return;
+          }
+          const blob = await r.blob();
+          const cd = r.headers.get('Content-Disposition') || '';
+          let name = 'gunluk_rapor.pdf';
+          const m = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/i.exec(cd);
+          if (m && m[1]) {
+            name = m[1].replace(/['"]/g, '').trim();
+            if (name.startsWith("UTF-8''")) name = decodeURIComponent(name.slice(7));
+          }
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = name;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+        } finally {
+          if (b) b.disabled = false;
+          if (link) link.style.pointerEvents = '';
+        }
+      }
+
+      document.getElementById('pdf-btn').addEventListener('click', downloadPdf);
+      var pdfGlow = document.getElementById('pdf-glow-link');
+      if (pdfGlow) {
+        pdfGlow.addEventListener('click', function (e) {
+          e.preventDefault();
+          downloadPdf();
+        });
+      }
+
+      runTypewriter();
+      fillTicker();
+      setInterval(fillTicker, 60000);
+      tickClock();
+      setInterval(tickClock, 1000);
+      loadHealth();
+      setInterval(loadHealth, POLL_MS);
+      loadHardware();
+      setInterval(loadHardware, 120000);
+      loadChart();
+      setInterval(loadChart, POLL_MS);
+    })();
+  </script>
+</body>
+</html>

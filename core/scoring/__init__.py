@@ -1,0 +1,1 @@
+"""Sağlık puanlama."""

@@ -1,0 +1,1 @@
+"""Çekirdek telemetri mantığı."""

@@ -1,0 +1,1 @@
+"""Donanım veri toplayıcıları."""

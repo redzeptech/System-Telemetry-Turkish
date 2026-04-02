@@ -1,0 +1,1 @@
+"""Windows Olay Günlüğü entegrasyonu."""
